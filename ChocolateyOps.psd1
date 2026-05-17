@@ -1,26 +1,25 @@
 @{
     RootModule        = 'ChocolateyOps.psm1'
-    ModuleVersion     = '1.4.0'
+
+    ModuleVersion     = '0.1.0'
+
     GUID              = 'e7b9c8aa-fd93-4a91-9b7d-99801ddcb100'
 
-    Author            = 'OpenAI'
-    CompanyName       = 'OpenAI'
-    Copyright         = '(c) OpenAI'
+    Author            = 'OMaciasd'
+
+    CompanyName       = 'OMaciasd'
+
+    Copyright         = '(c) OMaciasd'
 
     Description       = 'Production-grade Chocolatey lifecycle automation module.'
 
     PowerShellVersion = '5.1'
 
-    FunctionsToExport = @(
-        'Initialize-Chocolatey',
-        'Get-ChocolateyStatus',
-        'Get-ChocolateyOutdatedPackages',
-        'Invoke-ChocolateyAutoUpgrade',
-        'Invoke-ChocolateyMaintenance',
-        'Repair-ChocolateyInstallation'
-    )
+    FunctionsToExport = '*'
 
     CmdletsToExport   = @()
+
     VariablesToExport = '*'
+
     AliasesToExport   = @()
 }
