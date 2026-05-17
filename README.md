@@ -1,6 +1,23 @@
 # ChocolateyOps
 
-Production-ready PowerShell module for automated Chocolatey lifecycle management, unattended upgrades, runtime validation, and self-healing remediation.
+![PowerShell](https://img.shields.io/badge/powershell-5.1%2B-blue)
+![Version](https://img.shields.io/badge/version-0.2.0-green)
+![Platform](https://img.shields.io/badge/platform-windows-lightgrey)
+![License](https://img.shields.io/badge/license-MIT-yellow)
+
+Reusable PowerShell module for Chocolatey lifecycle automation, runtime validation, self-healing remediation, and unattended package management.
+
+---
+
+## Current Status
+
+Project maturity:
+
+- Active development
+- Pre-stable release cycle
+- Runtime architecture stabilized
+- API surface still evolving
+- Modular reusable architecture validated
 
 ---
 
@@ -13,8 +30,31 @@ Production-ready PowerShell module for automated Chocolatey lifecycle management
 - Outdated package detection
 - Corrupted runtime recovery
 - Idempotent execution
+- Dynamic runtime loading
+- Modular PowerShell architecture
+- Git submodule compatibility
 - PowerShell 5.1 / 7 support
 - Enterprise-ready automation
+
+---
+
+## Versioning
+
+This project follows Semantic Versioning (SemVer):
+
+| Pattern | Meaning |
+| --- | --- |
+| `0.x.x` | Active development |
+| `1.x.x` | Stable release |
+| Patch | Backward-compatible fixes |
+| Minor | Backward-compatible features |
+| Major | Breaking changes |
+
+Current release:
+
+```text
+v0.2.0
+```
 
 ---
 
@@ -43,10 +83,12 @@ ChocolateyOps/
 ├── Tests/
 │   └── ChocolateyOps.Tests.ps1
 │
-├── .gitignore
+├── assets/
+│
 ├── ChocolateyOps.psd1
 ├── ChocolateyOps.psm1
-└── README.md
+├── README.md
+└── .gitignore
 ```
 
 ---
@@ -67,7 +109,7 @@ ChocolateyOps/
 ### Clone Repository
 
 ```powershell
-git clone https://github.com/omaciasd/ChocolateyOps.git
+git clone https://github.com/OMaciasd/ChocolateyOps.git
 
 cd ChocolateyOps
 ```
@@ -78,13 +120,72 @@ cd ChocolateyOps
 
 ![usage](./assets/png/usage.png)
 
+```powershell
+Import-Module .\ChocolateyOps.psd1 -Force
+
+Get-Command -Module ChocolateyOps
+```
+
+---
+
+## Local Module Consumption
+
+Example local reusable consumption:
+
+```powershell
+Import-Module `
+    .\modules\ChocolateyOps\ChocolateyOps.psd1 `
+    -Force
+
+Get-ChocolateyStatus
+```
+
+---
+
+## Git Submodule Integration
+
+Add as reusable submodule:
+
+```powershell
+git submodule add `
+  https://github.com/OMaciasd/ChocolateyOps.git `
+  modules/ChocolateyOps
+```
+
+Initialize submodules:
+
+```powershell
+git submodule update --init --recursive
+```
+
+---
+
+## Module Runtime Architecture
+
+ChocolateyOps uses:
+
+- Private runtime helpers
+- Dynamic public function exporting
+- Runtime dependency loading
+- Idempotent workflows
+- Modular PowerShell architecture
+
+The module automatically loads:
+
+```text
+Private/*.ps1
+Public/*.ps1
+```
+
+during import lifecycle.
+
 ---
 
 ## Exported Commands
 
 | Command | Description |
 | --- | --- |
-| Ensure-Chocolatey | Ensures Chocolatey installation |
+| Ensure-Chocolatey | Validates Chocolatey installation |
 | Get-ChocolateyOutdatedPackages | Lists outdated packages |
 | Get-ChocolateyStatus | Returns Chocolatey runtime health |
 | Initialize-Chocolatey | Bootstraps Chocolatey |
@@ -104,17 +205,29 @@ cd ChocolateyOps
 
 ![Get-ChocolateyStatus](./assets/png/Get-ChocolateyStatus.png)
 
+```powershell
+Get-ChocolateyStatus
+```
+
 ---
 
 ### Detect Outdated Packages
 
 ![Get-ChocolateyOutdatedPackages](./assets/png/Get-ChocolateyOutdatedPackages.png)
 
+```powershell
+Get-ChocolateyOutdatedPackages
+```
+
 ---
 
 ### Automatic Package Upgrade
 
 ![Invoke-ChocolateyAutoUpgrade](./assets/png/Invoke-ChocolateyAutoUpgrade.png)
+
+```powershell
+Invoke-ChocolateyAutoUpgrade
+```
 
 ---
 
@@ -181,7 +294,8 @@ Test-ModuleManifest .\ChocolateyOps.psd1
 Install analyzer:
 
 ```powershell
-Install-Module PSScriptAnalyzer `
+Install-Module `
+    PSScriptAnalyzer `
     -Scope CurrentUser `
     -Force
 ```
@@ -189,13 +303,14 @@ Install-Module PSScriptAnalyzer `
 Run analyzer:
 
 ```powershell
-Invoke-ScriptAnalyzer -Path .\
+Invoke-ScriptAnalyzer `
+    -Path .\
 ```
 
 Expected:
 
 ```text
-No findings.
+Validation completes successfully.
 ```
 
 ---
@@ -205,7 +320,8 @@ No findings.
 Install:
 
 ```powershell
-Install-Module Pester `
+Install-Module `
+    Pester `
     -Scope CurrentUser `
     -Force
 ```
@@ -220,7 +336,7 @@ Invoke-Pester
 
 ## PowerShell Compatibility
 
-|Version | Status |
+| Version | Status |
 | --- | --- |
 | Windows PowerShell 5.1 | Supported |
 | PowerShell 7.x | Supported |
@@ -254,7 +370,12 @@ Designed for:
 ```powershell
 pwsh `
   -ExecutionPolicy Bypass `
-  -Command "Import-Module C:\Modules\ChocolateyOps\ChocolateyOps.psd1; Invoke-ChocolateyMaintenance"
+  -Command "
+    Import-Module `
+      C:\Modules\ChocolateyOps\ChocolateyOps.psd1;
+
+    Invoke-ChocolateyMaintenance
+  "
 ```
 
 ---
@@ -282,8 +403,13 @@ jobs:
     - name: Install Dependencies
       shell: pwsh
       run: |
-        Install-Module Pester -Force -Scope CurrentUser
-        Install-Module PSScriptAnalyzer -Force -Scope CurrentUser
+        Install-Module Pester `
+          -Force `
+          -Scope CurrentUser
+
+        Install-Module PSScriptAnalyzer `
+          -Force `
+          -Scope CurrentUser
 
     - name: Validate Manifest
       shell: pwsh
@@ -293,7 +419,9 @@ jobs:
     - name: Run Script Analyzer
       shell: pwsh
       run: |
-        Invoke-ScriptAnalyzer -Path .\ -Recurse
+        Invoke-ScriptAnalyzer `
+          -Path .\ `
+          -Recurse
 
     - name: Run Pester
       shell: pwsh
@@ -308,7 +436,8 @@ jobs:
 Planned enhancements:
 
 - Structured JSON logging
-- ELK / Grafana integration
+- ELK integration
+- Grafana integration
 - Retry orchestration engine
 - Policy engine
 - Offline repository support
@@ -333,7 +462,7 @@ MIT License
 
 ---
 
-## Operational Status
+## Operational Validation
 
 Validated capabilities:
 
@@ -344,4 +473,7 @@ Validated capabilities:
 - Self-healing recovery
 - Idempotent execution
 - PowerShell 7 compatibility
+- Dynamic runtime loading
+- Local reusable module consumption
+- Git submodule integration
 - Static analysis validation

@@ -1,3 +1,5 @@
+Set-StrictMode -Version Latest
+
 function Initialize-Chocolatey {
 
     [CmdletBinding()]
@@ -5,27 +7,50 @@ function Initialize-Chocolatey {
 
     if (Test-ChocolateyHealthy) {
 
-        Write-ChocoLog "Chocolatey already healthy."
+        Write-ChocolateyOpsLog `
+            -Level INFO `
+            -Message 'Chocolatey already healthy.'
 
         return
     }
 
-    Write-ChocoLog "Installing Chocolatey..."
+    Write-ChocolateyOpsLog `
+        -Level WARN `
+        -Message 'Chocolatey not detected or unhealthy.'
 
-    Set-ExecutionPolicy Bypass -Scope Process -Force
+    $installScript = 'https://community.chocolatey.org/install.ps1'
 
-    [System.Net.ServicePointManager]::SecurityProtocol =
-        [System.Net.SecurityProtocolType]::Tls12
+    try {
 
-    Invoke-Expression (
-        Invoke-WebRequest https://community.chocolatey.org/install.ps1 -UseBasicParsing
-    ).Content
+        Write-ChocolateyOpsLog `
+            -Level INFO `
+            -Message 'Installing Chocolatey.'
 
-    Start-Sleep -Seconds 5
+        Set-ExecutionPolicy Bypass `
+            -Scope Process `
+            -Force
 
-    if (-not (Test-ChocolateyHealthy)) {
-        throw 'Chocolatey installation failed.'
+        Invoke-Expression (
+            Invoke-RestMethod $installScript
+        )
+
+        if (-not (Test-ChocolateyHealthy)) {
+
+            throw 'Chocolatey installation validation failed.'
+        }
+
+        $version = Get-ChocolateyVersion
+
+        Write-ChocolateyOpsLog `
+            -Level INFO `
+            -Message "Chocolatey installed successfully. Version: $version"
     }
+    catch {
 
-    Write-ChocoLog "Chocolatey installed successfully."
+        Write-ChocolateyOpsLog `
+            -Level ERROR `
+            -Message $_.Exception.Message
+
+        throw
+    }
 }

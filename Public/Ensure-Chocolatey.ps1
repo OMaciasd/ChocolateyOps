@@ -2,48 +2,34 @@ Set-StrictMode -Version Latest
 
 function Ensure-Chocolatey {
 
-    [CmdletBinding(SupportsShouldProcess)]
-    param(
-        [switch]$RepairIfUnhealthy
-    )
+    [CmdletBinding()]
+    param()
 
     Write-ChocolateyOpsLog `
-        -Level 'INFO' `
-        -Message 'Ensuring Chocolatey state.' `
-        -Data @{
-            repairIfUnhealthy = [bool]$RepairIfUnhealthy
-        }
+        -Level INFO `
+        -Message 'Validating Chocolatey installation.'
 
     if (-not (Test-ChocolateyInstalled)) {
 
-        if ($PSCmdlet.ShouldProcess(
-            'Chocolatey',
-            'Install'
-        )) {
+        Write-ChocolateyOpsLog `
+            -Level WARN `
+            -Message 'Chocolatey is not installed.'
 
-            Install-ChocolateyBootstrap
-        }
+        throw 'Chocolatey is not installed.'
     }
 
-    $healthy = Test-ChocolateyHealthy
+    if (-not (Test-ChocolateyHealthy)) {
 
-    if (-not $healthy -and $RepairIfUnhealthy) {
+        Write-ChocolateyOpsLog `
+            -Level ERROR `
+            -Message 'Chocolatey installation is unhealthy.'
 
-        if ($PSCmdlet.ShouldProcess(
-            'Chocolatey',
-            'Repair'
-        )) {
-
-            Repair-Chocolatey
-        }
+        throw 'Chocolatey installation is unhealthy.'
     }
 
-    return New-ChocolateyOpsResult `
-        -Success $true `
-        -Action 'Ensure' `
-        -Message 'Chocolatey ensured.' `
-        -Version (Get-ChocolateyVersion) `
-        -Data @{
-            healthy = Test-ChocolateyHealthy
-        }
+    $version = Get-ChocolateyVersion
+
+    Write-ChocolateyOpsLog `
+        -Level INFO `
+        -Message "Chocolatey validated successfully. Version: $version"
 }

@@ -1,7 +1,7 @@
 @{
     RootModule        = 'ChocolateyOps.psm1'
 
-    ModuleVersion     = '1.4.0'
+    ModuleVersion     = '0.2.0'
 
     GUID              = 'e7b9c8aa-fd93-4a91-9b7d-99801ddcb100'
 
@@ -19,7 +19,7 @@
 
     CmdletsToExport   = @()
 
-    VariablesToExport = '*'
+    VariablesToExport = @()
 
     AliasesToExport   = @()
 }

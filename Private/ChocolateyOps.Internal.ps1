@@ -1,4 +1,9 @@
+Set-StrictMode -Version Latest
+
 function Get-ChocoExecutable {
+
+    [CmdletBinding()]
+    param()
 
     $paths = @(
         "$env:ProgramData\chocolatey\bin\choco.exe",
@@ -7,7 +12,11 @@ function Get-ChocoExecutable {
 
     foreach ($path in $paths) {
 
-        if (Test-Path $path) {
+        if ([string]::IsNullOrWhiteSpace($path)) {
+            continue
+        }
+
+        if (Test-Path -Path $path) {
             return $path
         }
     }
@@ -15,19 +24,50 @@ function Get-ChocoExecutable {
     return $null
 }
 
-function Test-ChocolateyHealthy {
+function Test-ChocolateyInstalled {
+
+    [CmdletBinding()]
+    param()
+
+    return $null -ne (Get-ChocoExecutable)
+}
+
+function Get-ChocolateyVersion {
+
+    [CmdletBinding()]
+    param()
+
+    $exe = Get-ChocoExecutable
+
+    if (-not $exe) {
+        return $null
+    }
 
     try {
 
-        $exe = Get-ChocoExecutable
+        $version = & $exe --version 2>$null
 
-        if (-not $exe) {
-            return $false
+        if ($LASTEXITCODE -ne 0) {
+            return $null
         }
 
-        $null = & $exe --version
+        return ($version | Select-Object -First 1)
+    }
+    catch {
+        return $null
+    }
+}
 
-        return $LASTEXITCODE -eq 0
+function Test-ChocolateyHealthy {
+
+    [CmdletBinding()]
+    param()
+
+    try {
+
+        $version = Get-ChocolateyVersion
+
+        return -not [string]::IsNullOrWhiteSpace($version)
     }
     catch {
         return $false
