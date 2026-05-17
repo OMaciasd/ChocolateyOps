@@ -1,8 +1,21 @@
-function Write-ChocoLog {
+Set-StrictMode -Version Latest
 
+function Write-ChocolateyOpsLog {
+
+    [CmdletBinding()]
     param(
-        [string]$Message,
-        [string]$Level = 'INFO'
+        [Parameter(Mandatory)]
+        [string]
+        $Message,
+
+        [ValidateSet(
+            'INFO',
+            'WARN',
+            'ERROR',
+            'DEBUG'
+        )]
+        [string]
+        $Level = 'INFO'
     )
 
     $timestamp = Get-Date -Format 'yyyy-MM-dd HH:mm:ss'
